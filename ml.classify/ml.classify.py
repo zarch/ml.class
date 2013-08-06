@@ -85,6 +85,13 @@
 #%  guisection: Training
 #%end
 #%option
+#%  key: training_key
+#%  type: string
+#%  description: Name of the key of the instance to train and use for classification
+#%  required: no
+#%  guisection: Training
+#%end
+#%option
 #%  key: training_hdf
 #%  type: string
 #%  description: Name for the training HDF file, if not set the HDF with results will be used
@@ -157,12 +164,14 @@ def main(opts, flgs):
     K_chk, y_chk = Kchk.loc[itr], ychk.loc[itr]
     conf = imp.load_source("conf", opts['training_conf'])
     mls = getattr(conf, opts['training_mls'])
+    key = None if opts['training_key'] == '' else opts['training_key']
     with open(opts['training_json'], 'r') as fp:
         tr = json.load(fp)
         check_classification(tr)
         # mls_classification(K_all, K_chk, y_chk, mls, hdf, out_class)
         mls_classification(K_all, K_chk, y_chk, mls,
-                           opts['hdf'], opts['out_class'])
+                           opts['hdf'], opts['out_class'],
+                           key=key)
 
 
 if __name__ == "__main__":
