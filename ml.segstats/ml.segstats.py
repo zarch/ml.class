@@ -112,7 +112,9 @@ def main(opts, flgs):
         segment(opts['thrs'], opts['group'], opts['seg_opts'],
                 opts['seg_name'])
     if 'r' in flgs and flgs['r']:
-        statistics(opts['group'], opts['seg_name'] % opts['thrs'][-1],
+        sname = opts['seg_name'] % opts['thrs'][-1] \
+                if '%' in opts['seg_name'] else opts['seg_name']
+        statistics(opts['group'], sname,
                    opts['stat_ratio_cols'].split(','), opts['hdf'],
                    opts['stat_name'], opts['stat_results'])
 

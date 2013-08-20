@@ -34,7 +34,7 @@
 #%  type: string
 #%  description: Name of the statistic data contained in the HDF file
 #%  required: yes
-#%  answer: K_all
+#%  answer: data
 #%end
 #%option
 #%  key: training_json
@@ -45,11 +45,11 @@
 #%  answer: training.json
 #%end
 #%option
-#%  key: training_Kchk
+#%  key: training_kchk
 #%  type: string
 #%  description: Name for the training values in the HDF
 #%  required: no
-#%  answer: K_chk
+#%  answer:
 #%  guisection: Training
 #%end
 #%option
@@ -113,6 +113,14 @@
 #%  required: no
 #%  answer: classify_using_%s
 #%end
+#%option
+#%  key: transform
+#%  type: string
+#%  options: nothing,standardize,normalize
+#%  description: Choose the traformation function of the statistics data of the segments
+#%  required: no
+#%  answer: nothing
+#%end
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
@@ -139,6 +147,7 @@ if path is None:
 sys.path.append(path)
 from mlchk import check_classification
 from mltraining import extract_itr, extract_training
+from mltransform import transform
 from mlclassify import mls_classification
 
 
@@ -146,32 +155,29 @@ def main(opts, flgs):
     if not opts['training_hdf']:
         opts['training_hdf'] = opts['hdf']
 
-    #import ipdb; ipdb.set_trace()
-    K_all = pnd.read_hdf(opts['hdf'], str(opts['data']))
+    data = pnd.read_hdf(opts['hdf'], str(opts['data']))
 
-    if opts['training_Kchk'] and opts['training_ychk']:
-        Kchk = pnd.read_hdf(opts['training_hdf'], str(opts['training_Kchk']))
+    if opts['training_kchk'] and opts['training_ychk']:
+        Kchk = pnd.read_hdf(opts['training_hdf'], str(opts['training_kchk']))
         ychk = pnd.read_hdf(opts['training_hdf'], str(opts['training_ychk']))
         itr = extract_itr(Kchk, ychk, int(opts['training_number']))
     else:
         with open(opts['training_json'], 'r') as fp:
             tr = json.load(fp)
-            itr, Kchk, ychk = extract_training(tr, K_all,
+            check_classification(tr)
+            itr, Kchk, ychk = extract_training(tr, data,
                                                int(opts['training_number']))
-    Kchk = pnd.DataFrame(Kchk.copy().tolist(),
-                         index=Kchk.index,
-                         columns=Kchk.iloc[0].index)
-    K_chk, y_chk = Kchk.loc[itr], ychk.loc[itr]
+#    Kchk = pnd.DataFrame(Kchk.copy().tolist(),
+#                         index=Kchk.index,
+#                         columns=Kchk.iloc[0].index)
     conf = imp.load_source("conf", opts['training_conf'])
     mls = getattr(conf, opts['training_mls'])
     key = None if opts['training_key'] == '' else opts['training_key']
-    with open(opts['training_json'], 'r') as fp:
-        tr = json.load(fp)
-        check_classification(tr)
-        # mls_classification(K_all, K_chk, y_chk, mls, hdf, out_class)
-        mls_classification(K_all, K_chk, y_chk, mls,
-                           opts['hdf'], opts['out_class'],
-                           key=key)
+    tdata, tKchk = transform(opts['transform'], data, Kchk)
+    tK_chk, y_chk = tKchk.loc[itr], ychk.loc[itr]
+    # mls_classification(data, K_chk, y_chk, mls, hdf, out_class)
+    mls_classification(tdata, tK_chk, y_chk, mls,
+                       opts['hdf'], opts['out_class'], key=key)
 
 
 if __name__ == "__main__":
@@ -183,6 +189,7 @@ ml.classify training_json=training.json \
 training_conf=mlconf.py \
 training_mls=BEST \
 training_hdf=/home/pietro/docdat/phd/edinburgh/segSVM/segments-ml/data.hdf \
+training_kchk=K_chk \
 training_ychk=y_chk \
 hdf=results.hdf
 

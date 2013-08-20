@@ -3,7 +3,8 @@ MODULE_TOPDIR = ../../..
 include $(MODULE_TOPDIR)/include/Make/Other.make
 include $(MODULE_TOPDIR)/include/Make/Python.make
 
-MODULES = mlchk mlclassify mlconf mlplts mlsegment mlstats mltraining mlwriterast
+MODULES = mlchk mlclassify mlconf mlplts mlsegment mlstats mltraining \
+          mlwriterast mltransform
 
 ETCDIR = $(ETC)/ml.class
 

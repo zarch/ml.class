@@ -69,6 +69,5 @@ def statistics(group, zones, ratio, hdf, stat_name, stat_results):
     df = pnl2df(get_pnl(gmaps, stat_name))
     # 'photo_r_mean', 'photo_g_mean', 'photo_b_mean'
     add_ratio(df, ratio)
-    df_stand = (df - df.mean()) / df.std()
-    df_stand.to_hdf(hdf, str(stat_results))
-    return df_stand
+    df.to_hdf(hdf, str(stat_results))
+    return df
