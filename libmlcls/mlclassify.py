@@ -32,6 +32,12 @@ def classify(K_all, K_chk, y_chk, ml, save='', hdf=''):
     return ids
 
 
-def mls_classification(K_all, K_chk, y_chk, mls, hdf, out_class, key=None):
+def mls_classification(K_all, K_chk, y_chk, mls,
+                       hdf=None, out_class=None, key=None):
+    res = {}
     for k in mls if key is None else [key, ]:
-        classify(K_all, K_chk, y_chk, mls[k], save=out_class % k, hdf=hdf)
+        print(k)
+        res[k] = classify(K_all, K_chk, y_chk, mls[k],
+                          save=out_class % k if out_class else '', hdf=hdf)
+    return res
+
