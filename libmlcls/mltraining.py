@@ -32,7 +32,8 @@ def extract_training(tran, df, n=None):
         #import ipdb; ipdb.set_trace()
         rnd.shuffle(tran[key]['ids'])
         res_trn.extend(tran[key]['ids'][:n] if n else tran[key]['ids'])
-    K_chk = pnd.Series(data=res_data, index=res_indx)
+    K_chk = pnd.DataFrame(data=res_data, index=res_indx,
+                          columns=res_data[0].index)
     y_chk = pnd.Series(data=res_clas, index=res_indx)
     itraining = pnd.Index(data=res_trn, dtype=np.int)
     return itraining, K_chk, y_chk
