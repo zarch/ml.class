@@ -18,6 +18,7 @@ Please install pandas: http://pandas.pydata.org/
     raise ImportError(e)
 
 from grass.pygrass.raster import RasterRow
+from grass.lib.gis import G_percent
 
 
 def ml2rast(segsname, outname, hdf=None, idsname=None, ids=None):
@@ -27,13 +28,17 @@ def ml2rast(segsname, outname, hdf=None, idsname=None, ids=None):
     segs.open('r')
     out = RasterRow(outname)
     out.open('w', mtype='CELL', overwrite=True)
-    for row in segs:
+    nrows = len(segs)
+    for r, row in enumerate(segs):
+        #import ipdb; ipdb.set_trace()
+        #row[:] = ids.loc[row]  # => MemoryError
         for i, col in enumerate(row):
             try:
                 row[i] = ids[col]
             except KeyError:
                 row[i] = 0
         out.put_row(row)
+        G_percent(r, nrows, 10)
     segs.close()
     out.close()
     print("Time spent writing the raster %s: %.2fs" % (outname,
