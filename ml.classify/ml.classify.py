@@ -107,13 +107,6 @@
 #%  answer: %s
 #%end
 #%option
-#%  key: out_map_name
-#%  type: string
-#%  description: Path to machine learning configuration file
-#%  required: no
-#%  answer: classify_using_%s
-#%end
-#%option
 #%  key: transform
 #%  type: string
 #%  options: nothing,standardize,normalize
