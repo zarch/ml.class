@@ -114,6 +114,13 @@
 #%  required: no
 #%  answer: nothing
 #%end
+#%option
+#%  key: area_size
+#%  type: integer
+#%  description: Use only areas greater then N pixels
+#%  required: no
+#%  answer: 0
+#%end
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
@@ -148,8 +155,8 @@ def main(opts, flgs):
     if not opts['training_hdf']:
         opts['training_hdf'] = opts['hdf']
 
-    data = pnd.read_hdf(opts['hdf'], str(opts['data']))
-
+    df = pnd.read_hdf(opts['hdf'], str(opts['data']))
+    data = df[df['non_null_cells'] > int(opts['area_size'])]
     if opts['training_kchk'] and opts['training_ychk']:
         Kchk = pnd.read_hdf(opts['training_hdf'], str(opts['training_kchk']))
         ychk = pnd.read_hdf(opts['training_hdf'], str(opts['training_ychk']))
@@ -160,17 +167,17 @@ def main(opts, flgs):
             check_classification(tr)
             itr, Kchk, ychk = extract_training(tr, data,
                                                int(opts['training_number']))
-#    Kchk = pnd.DataFrame(Kchk.copy().tolist(),
-#                         index=Kchk.index,
-#                         columns=Kchk.iloc[0].index)
+
     conf = imp.load_source("conf", opts['training_conf'])
     mls = getattr(conf, opts['training_mls'])
     key = None if opts['training_key'] == '' else opts['training_key']
+
     tdata, tKchk = transform(opts['transform'], data, Kchk)
     tK_chk, y_chk = tKchk.loc[itr], ychk.loc[itr]
-    # mls_classification(data, K_chk, y_chk, mls, hdf, out_class)
+
     mls_classification(tdata, tK_chk, y_chk, mls,
-                       opts['hdf'], opts['out_class'], key=key)
+                       hdf=opts['hdf'], out_class=opts['out_class'],
+                       key=key)
 
 
 if __name__ == "__main__":
