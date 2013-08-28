@@ -21,7 +21,7 @@ from grass.pygrass.raster import RasterRow
 from grass.lib.gis import G_percent
 
 
-def ml2rast(segsname, outname, hdf=None, idsname=None, ids=None):
+def ml2rast(segsname, outname, hdf=None, idsname=None, ids=None, hist=None):
     ids = ids if ids else pnd.read_hdf(hdf, idsname)
     t0 = time.time()
     segs = RasterRow(segsname)
@@ -40,6 +40,12 @@ def ml2rast(segsname, outname, hdf=None, idsname=None, ids=None):
         out.put_row(row)
         G_percent(r, nrows, 10)
     segs.close()
+    if hist:
+        import datetime, os
+        out.hist.date = datetime.datetime.now()
+        out.hist.title = hist
+        out.hist.creator = os.getenv('USER')
+        out.hist.write(out.name)
     out.close()
     print("Time spent writing the raster %s: %.2fs" % (outname,
                                                        time.time() - t0))
