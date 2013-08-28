@@ -40,6 +40,12 @@
 #%  description: Name of the ML results
 #%  required: yes
 #%end
+#%option
+#%  key: hist
+#%  type: string
+#%  description: Command history to write on the raster
+#%  required: no
+#%end
 #%option G_OPT_R_OUTPUT
 #%  key: output
 #%  description: Name for the segment map
@@ -62,7 +68,8 @@ from mlwriterast import ml2rast
 
 def main(opts, flgs):
     ml2rast(opts['segment'], opts['output'],
-            hdf=opts['hdf'], idsname=opts['mlname'])
+            hdf=opts['hdf'], idsname=opts['mlname'],
+            hist=opts['hist'])
 
 
 if __name__ == "__main__":
