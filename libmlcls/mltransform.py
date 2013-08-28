@@ -20,7 +20,7 @@ def normalize(df, xmin, xmax):
 def transform(method, data, chk):
     if method == 'standardize':
         mean, std = chk.mean(), chk.std()
-        return stdize(data, mean, std), stdize(data, mean, std)
+        return stdize(data, mean, std), stdize(chk, mean, std)
     elif method == 'normalize':
         xmin, xmax = chk.min(), chk.max()
         return normalize(data, xmin, xmax), normalize(chk, xmin, xmax)
